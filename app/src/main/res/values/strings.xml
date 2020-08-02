@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Delta_Project</string>
+    <string name="countries_names">countries names</string>
+    <string name="all_countries_list">ALL COUNTRIES DATA</string>
+    <string name="indian_states">INDIAN STATES DATA</string>
+    <string name="network_error_message">ERROR!! PLEASE TRY AGAIN OR CHECK INTERNET</string>
+</resources>

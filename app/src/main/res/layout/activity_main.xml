@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_death"
+    android:orientation="vertical"
+    tools:context=".Models.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/rl_of_cardViews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="150sp"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/text_10"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="all_countries"
+                android:text="@string/all_countries_list"
+                android:textColor="@color/white_50"
+                tool:cardBackgroundColor="@color/davy_grey"
+                tool:cardCornerRadius="50sp"
+                tool:cardElevation="5sp">
+
+                <ImageView
+                    android:layout_width="100sp"
+                    android:layout_height="100sp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="10sp"
+                    android:src="@drawable/globe" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="15sp"
+                    android:gravity="center"
+                    android:padding="10sp"
+                    android:text="@string/all_countries_list"
+                    android:textColor="#fff" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="150sp"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/text_10"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:focusable="true"
+                android:onClick="indian_states"
+                android:text="@string/all_countries_list"
+                android:textColor="@color/white_50"
+                tool:cardBackgroundColor="@color/davy_grey"
+                tool:cardCornerRadius="50sp"
+                tool:cardElevation="5sp">
+
+                <ImageView
+                    android:layout_width="100sp"
+                    android:layout_height="100sp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="10sp"
+                    android:src="@drawable/indianflag" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="15sp"
+                    android:gravity="center"
+                    android:padding="10sp"
+                    android:text="@string/indian_states"
+                    android:textColor="#fff" />
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="700dp"
+            android:layout_below="@+id/rl_of_cardViews"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/gone"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/space_x2"
+                android:layout_marginBottom="16dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded_light_grey" >
+                <com.github.mikephil.charting.charts.PieChart
+                    android:padding="@dimen/text_20"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/all_countries_pie_chart"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/space_x2"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded_light_grey" >
+                <com.github.mikephil.charting.charts.PieChart
+                    android:padding="@dimen/text_20"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/india_pie_chart"/>
+            </FrameLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>
