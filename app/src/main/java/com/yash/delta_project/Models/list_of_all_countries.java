@@ -1,14 +1,17 @@
 package com.yash.delta_project.Models;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.yash.delta_project.Adapters.*;
@@ -29,24 +32,26 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class list_of_all_countries extends AppCompatActivity {
+public class list_of_all_countries extends AppCompatActivity implements countries_list_adapter.OnItemClickListener {
     RecyclerView recyclerView;
     countries_list_adapter adapter;
     SearchView searchView;
     list_of_countries list_of_countries;
     TextView loading;
     ShimmerFrameLayout shimmerFrameLayout;
-
+    List<country> countries = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_of_places);
+        list_of_countries = new list_of_countries();
         loading = findViewById(R.id.loading);
         shimmerFrameLayout = findViewById(R.id.shimmer);
         searchView = findViewById(R.id.search_view);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                search_action(query);
                 return false;
             }
 
@@ -61,13 +66,14 @@ public class list_of_all_countries extends AppCompatActivity {
     }
 
     private void search_action(String newText) {
-        List<country> countries = new ArrayList<>();
+        countries = new ArrayList<>();
         for (country country : list_of_countries.getCountries()) {
             if (country.getCountry().toLowerCase().contains(newText.toLowerCase())) {
                 countries.add(country);
             }
         }
         adapter = new countries_list_adapter(countries);
+        adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -80,7 +86,7 @@ public class list_of_all_countries extends AppCompatActivity {
         countries_interface covid19Interface = covid_api_services.get_countries().create(countries_interface.class);
         covid19Interface.getCountries().enqueue(new Callback<List<country>>() {
             @Override
-            public void onResponse(Call<List<country>> call, Response<List<country>> response) {
+            public void onResponse(@NonNull Call<List<country>> call,@NonNull Response<List<country>> response) {
                 if (!response.isSuccessful()) {
                     loading.setText(R.string.network_error_message);
                     shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 1000);
@@ -89,19 +95,29 @@ public class list_of_all_countries extends AppCompatActivity {
                 loading.setVisibility(View.GONE);
                 recyclerView.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
-                list_of_countries = new list_of_countries();
                 list_of_countries.setCountries(response.body());
                 Collections.sort(list_of_countries.getCountries(), new SortbyName());
-                adapter = new countries_list_adapter(list_of_countries.getCountries());
+                countries=list_of_countries.getCountries();
+                adapter = new countries_list_adapter(countries);
+                adapter.setOnItemClickListener(list_of_all_countries.this);
                 recyclerView.setAdapter(adapter);
             }
 
             @Override
-            public void onFailure(Call<List<com.yash.delta_project.gson_converters.country>> call, Throwable t) {
+            public void onFailure(@NonNull Call<List<com.yash.delta_project.gson_converters.country>> call,@NonNull Throwable t) {
                 loading.setText(R.string.network_error_message);
                 shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 1000);
                 Log.e("onFailure: ", Objects.requireNonNull(t.getMessage()));
             }
         });
+    }
+
+    @Override
+    public void onItemClick(int position) {
+        //Toast.makeText(this, String.valueOf(position), Toast.LENGTH_SHORT).show();
+        Log.d("onItemClick: ", String.valueOf(position));
+        Intent intent = new Intent(this, countries_cases_details_activity.class);
+        intent.putExtra("countryName",countries.get(position).getSlug());
+        startActivity(intent);
     }
 }

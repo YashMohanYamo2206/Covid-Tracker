@@ -11,14 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="10sp">
 
-        <ImageView
-            android:id="@+id/img_country"
-            android:layout_width="0dp"
-            android:layout_height="80dp"
-            android:layout_weight="1"
-            android:contentDescription="It's simply a country flag" />
-
         <TextView
+            android:layout_marginTop="@dimen/text_10"
             android:id="@+id/country_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

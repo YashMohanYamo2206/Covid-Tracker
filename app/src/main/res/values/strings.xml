@@ -4,4 +4,10 @@
     <string name="all_countries_list">ALL COUNTRIES DATA</string>
     <string name="indian_states">INDIAN STATES DATA</string>
     <string name="network_error_message">ERROR!! PLEASE TRY AGAIN OR CHECK INTERNET</string>
+    <string name="last_updated">Last updated : </string>
+    <string name="country">COUNTRY</string>
+    <string name="total_cases">TOTAL CASES \n\n</string>
+    <string name="active">ACTIVE \n\n</string>
+    <string name="recovered">RECOVERED \n\n</string>
+    <string name="deaths">DEATHS \n\n</string>
 </resources>

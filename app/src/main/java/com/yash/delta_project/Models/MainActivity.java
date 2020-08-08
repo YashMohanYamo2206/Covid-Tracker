@@ -1,5 +1,6 @@
 package com.yash.delta_project.Models;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,10 +10,13 @@ import android.view.View;
 import android.widget.Toast;
 
 
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.yash.delta_project.R;
 import com.yash.delta_project.gson_converters.global;
 import com.yash.delta_project.gson_converters.india_data;
@@ -30,22 +34,22 @@ import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity {
-    com.github.mikephil.charting.charts.PieChart PieChart,PieChart1;
+    com.github.mikephil.charting.charts.PieChart PieChart;
     List<Integer> colors = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initialise_total_india_retrofit_services();
         initialise_total_world_retrofit_services();
+        initialise_total_india_retrofit_services();
     }
 
     private void initialise_total_world_retrofit_services() {
         countries_interface india_total_data = covid_api_services.get_countries().create(countries_interface.class);
         india_total_data.getWorldData().enqueue(new Callback<world_data>() {
             @Override
-            public void onResponse(Call<world_data> call, Response<world_data> response) {
+            public void onResponse(@NonNull Call<world_data> call, @NonNull Response<world_data> response) {
                 if (!response.isSuccessful()) {
                     Toast.makeText(com.yash.delta_project.Models.MainActivity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
                     return;
@@ -59,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
                 global global = response.body().getGlobal();
                 entries.add(new PieEntry(global.getTotalRecovered(), "Recovered Cases"));
                 entries.add(new PieEntry(global.getTotalDeaths(), "Deaths"));
-                entries.add(new PieEntry(global.getTotalConfirmed()-global.getTotalDeaths()-global.getTotalRecovered(), "Active Cases"));
-                PieDataSet data_set = new PieDataSet(entries,"");
+                entries.add(new PieEntry(global.getTotalConfirmed() - global.getTotalDeaths() - global.getTotalRecovered(), "Active Cases"));
+                PieDataSet data_set = new PieDataSet(entries, "");
                 data_set.setValueTextSize(13f);
                 data_set.setColors(colors);
                 PieData pieData = new PieData(data_set);
@@ -75,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<world_data> call, Throwable t) {
-
+            public void onFailure(@NonNull Call<world_data> call, @NonNull Throwable t) {
+                Toast.makeText(com.yash.delta_project.Models.MainActivity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -85,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         india_total_data india_total_data = covid_api_services.get_total_india_data().create(com.yash.delta_project.interfaces.india_total_data.class);
         india_total_data.getIndiaData().enqueue(new Callback<india_data>() {
             @Override
-            public void onResponse(Call<india_data> call, Response<india_data> response) {
+            public void onResponse(@NonNull Call<india_data> call, @NonNull Response<india_data> response) {
                 if (!response.isSuccessful()) {
                     Toast.makeText(com.yash.delta_project.Models.MainActivity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
                     return;
@@ -99,9 +103,8 @@ public class MainActivity extends AppCompatActivity {
                 entries.add(new PieEntry(response.body().getRecovered(), "Recovered Cases"));
                 entries.add(new PieEntry(response.body().getDeaths(), "Deaths"));
                 entries.add(new PieEntry(response.body().getActive(), "Active Cases"));
-                PieDataSet data_set = new PieDataSet(entries,"");
+                PieDataSet data_set = new PieDataSet(entries, "");
                 data_set.setValueTextSize(13f);
-                //data_set.setValueTextColors(colors);
                 data_set.setColors(colors);
                 PieData pieData = new PieData(data_set);
                 PieChart.setDrawEntryLabels(false);
@@ -115,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<india_data> call, Throwable t) {
+            public void onFailure(@NonNull Call<india_data> call, @NonNull Throwable t) {
                 Toast.makeText(com.yash.delta_project.Models.MainActivity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
             }
         });
@@ -126,6 +129,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void indian_states(View view) {
-
+        startActivity(new Intent(this,countries_cases_details_activity.class));
     }
 }

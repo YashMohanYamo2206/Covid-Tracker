@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#9E2316"
+    tools:context=".Models.countries_cases_details_activity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/back_button"
+                android:layout_width="60sp"
+                android:layout_height="60sp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:onClick="back_button"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:textColor="@color/cool_grey"
+                android:id="@+id/last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="@dimen/text_20"
+                android:text="@string/last_updated"
+                tools:ignore="RelativeOverlap" />
+
+        </RelativeLayout>
+
+        <com.facebook.shimmer.ShimmerFrameLayout
+            android:id="@+id/shimmer_country"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.649">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="600dp">
+
+                <ImageView
+                    android:id="@+id/flag"
+                    android:layout_width="100sp"
+                    android:layout_height="100sp"
+                    android:layout_marginTop="4dp"
+                    android:src="@drawable/globe"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.498"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/country_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:gravity="center"
+                    android:text="@string/country"
+                    android:textSize="40sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/flag" />
+                <TextView
+                    android:id="@+id/total_cases"
+                    android:layout_width="180sp"
+                    android:layout_height="100sp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="32dp"
+                    android:background="@drawable/bg_rounded_total_cases"
+                    android:gravity="center"
+                    android:padding="15sp"
+                    android:text="@string/total_cases"
+                    android:textColor="@color/prince_ton_orange"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/country_name" />
+
+                <TextView
+                    android:textColor="@color/prince_ton_orange"
+                    android:id="@+id/active"
+                    android:layout_width="170sp"
+                    android:layout_height="100sp"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_rounded_active"
+                    android:gravity="center"
+                    android:padding="15sp"
+                    android:text="@string/active"
+                    android:textSize="20sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/country_name"
+                    app:layout_constraintTop_toBottomOf="@+id/country_name" />
+
+                <TextView
+                    android:id="@+id/recovered"
+                    android:layout_width="170sp"
+                    android:layout_height="100sp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/bg_rounded_yellow"
+                    android:gravity="center"
+                    android:padding="15sp"
+                    android:text="@string/recovered"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/total_cases"
+                    app:layout_constraintVertical_bias="0.312" />
+
+                <TextView
+                    android:id="@+id/deaths"
+                    android:layout_width="170sp"
+                    android:layout_height="100sp"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_rounded_death"
+                    android:gravity="center"
+                    android:padding="15sp"
+                    android:text="@string/deaths"
+                    android:textColor="#990E0101"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/recovered"
+                    app:layout_constraintEnd_toEndOf="@+id/active"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toEndOf="@+id/recovered"
+                    app:layout_constraintTop_toTopOf="@+id/recovered"
+                    app:layout_constraintVertical_bias="0.0" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.facebook.shimmer.ShimmerFrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="10sp"
+        android:id="@+id/layout_bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="480sp"
+        android:background="@drawable/bg_bottom_sheet"
+        android:orientation="vertical"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="150dp"
+        app:layout_behavior="@string/bottom_sheet_behavior">
+
+        <ImageView
+            android:id="@+id/img_drag"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="@dimen/space_x2"
+            android:background="@drawable/bg_bottom_sheet_drag"
+            android:paddingTop="@dimen/space"
+            app:srcCompat="@drawable/ic_drag_handle" />
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="\nGRAPHS \n"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/text_32" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_x2"
+                    android:layout_marginTop="@dimen/space_x2"
+                    android:layout_marginBottom="@dimen/space_x4"
+                    android:background="@drawable/bg_rounded_light_grey">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/daily_new_cases_line_chart"
+                            android:layout_width="1000dp"
+                            android:layout_height="300dp"
+                            android:padding="@dimen/text_20" />
+                    </FrameLayout>
+                </HorizontalScrollView>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_x2"
+                    android:layout_marginTop="@dimen/space_x2"
+                    android:layout_marginBottom="@dimen/space_x4"
+                    android:background="@drawable/bg_rounded_light_grey">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/active_cases_line_chart"
+                            android:layout_width="1000dp"
+                            android:layout_height="300dp"
+                            android:padding="@dimen/text_20" />
+                    </FrameLayout>
+                </HorizontalScrollView>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_x2"
+                    android:layout_marginTop="@dimen/space_x2"
+                    android:layout_marginBottom="@dimen/space_x4"
+                    android:background="@drawable/bg_rounded_light_grey">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/recovered_cases_line_chart"
+                            android:layout_width="1000dp"
+                            android:layout_height="300dp"
+                            android:padding="@dimen/text_20" />
+                    </FrameLayout>
+                </HorizontalScrollView>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_x2"
+                    android:layout_marginTop="@dimen/space_x2"
+                    android:layout_marginBottom="@dimen/space_x4"
+                    android:background="@drawable/bg_rounded_light_grey">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/death_cases_line_chart"
+                            android:layout_width="1000dp"
+                            android:layout_height="300dp"
+                            android:padding="@dimen/text_20" />
+                    </FrameLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
