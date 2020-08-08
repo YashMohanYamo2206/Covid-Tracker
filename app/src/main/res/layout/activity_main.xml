@@ -47,7 +47,8 @@
                         android:src="@drawable/globe"
                         tool:layout_constraintEnd_toEndOf="parent"
                         tool:layout_constraintStart_toStartOf="parent"
-                        tool:layout_constraintTop_toTopOf="parent" />
+                        tool:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -92,7 +93,8 @@
                         android:src="@drawable/indianflag"
                         tool:layout_constraintEnd_toEndOf="parent"
                         tool:layout_constraintStart_toStartOf="parent"
-                        tool:layout_constraintTop_toTopOf="parent" />
+                        tool:layout_constraintTop_toTopOf="parent"
+                        tools:ignore="ContentDescription" />
 
                     <TextView
                         android:id="@+id/textView6"

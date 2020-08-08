@@ -6,6 +6,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,12 +15,15 @@ import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.MPPointD;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yash.delta_project.R;
+import com.yash.delta_project.axis_formatter.X_axis_formatter__line_chart;
 import com.yash.delta_project.gson_converters.countries_details;
 import com.yash.delta_project.interfaces.countries_interface;
 import com.yash.delta_project.retrofit_services.covid_api_services;
@@ -93,6 +97,7 @@ public class countries_cases_details_activity extends AppCompatActivity {
                 }
                 assert response.body() != null;
                 if (response.body().isEmpty()) {
+                    shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
                     tv_totalCases.setText(tv_totalCases.getText() + "NULL");
                     tv_active.setText(tv_active.getText() + "NULL");
                     tv_deaths.setText(tv_deaths.getText() + "NULL");
@@ -113,70 +118,112 @@ public class countries_cases_details_activity extends AppCompatActivity {
                 tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
                 tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
                 tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + date.get(date.size() - 1));
-                display_daily_cases(total_cases);
-                display_recovered_cases(recovered);
-                display_active_cases(active);
-                display_death_cases(deaths);
+                display_daily_cases(total_cases, date);
+                display_recovered_cases(recovered, date);
+                display_active_cases(active, date);
+                display_death_cases(deaths, date);
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onFailure(@NonNull Call<List<countries_details>> call, @NonNull Throwable t) {
                 Log.d("onFailure: ", Objects.requireNonNull(t.getMessage()));
+                shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
+                tv_totalCases.setText(tv_totalCases.getText() + "NULL");
+                tv_active.setText(tv_active.getText() + "NULL");
+                tv_deaths.setText(tv_deaths.getText() + "NULL");
+                tv_recovered.setText(tv_recovered.getText() + "NULL");
                 Toast.makeText(countries_cases_details_activity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
-    private void display_recovered_cases(@NotNull List<Integer> recovered) {
+    private void display_recovered_cases(@NotNull List<Integer> recovered, List<String> date) {
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < recovered.size(); i++) {
             entries.add(new Entry(i, recovered.get(i)));
         }
         LineDataSet lineDataSet = new LineDataSet(entries, "recovered CASES".toUpperCase());
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        lineDataSet.setLineWidth(1f);
+        XAxis axis = recovered_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        //lineDataSet.setColor(R.color.color_recovered);
+        lineDataSet.setDrawCircles(false);
         dataSets.add(lineDataSet);
         LineData data = new LineData(dataSets);
         recovered_cases.setData(data);
         recovered_cases.invalidate();
     }
 
-    private void display_active_cases(@NotNull List<Integer> active) {
+    private void display_active_cases(@NotNull List<Integer> active, List<String> date) {
+        for (int i = 0; i < active.size(); i++) {
+            Log.d("display_active_cases: ", date.get(i));
+        }
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < active.size(); i++) {
             entries.add(new Entry(i, active.get(i)));
         }
         LineDataSet lineDataSet = new LineDataSet(entries, "ACTIVE CASES");
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        XAxis axis = active_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        lineDataSet.setLineWidth(1f);
+        lineDataSet.setDrawCircles(false);
         dataSets.add(lineDataSet);
         LineData data = new LineData(dataSets);
         active_cases.setData(data);
         active_cases.invalidate();
     }
 
-    private void display_death_cases(@NotNull List<Integer> deaths) {
+    private void display_death_cases(@NotNull List<Integer> deaths, List<String> date) {
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < deaths.size(); i++) {
             entries.add(new Entry(i, deaths.get(i)));
         }
         LineDataSet lineDataSet = new LineDataSet(entries, "DEATHS CASES");
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        //lineDataSet.setColor(R.color.color_death);
+        lineDataSet.setLineWidth(1f);
+        XAxis axis = death_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
         dataSets.add(lineDataSet);
+        lineDataSet.setDrawCircles(false);
         LineData data = new LineData(dataSets);
         death_cases.setData(data);
         death_cases.invalidate();
     }
 
-    private void display_daily_cases(@NotNull List<Integer> total_cases) {
+    private void display_daily_cases(@NotNull List<Integer> total_cases, List<String> date) {
         ArrayList<Entry> entries = new ArrayList<>();
-        for (int i = 0; i < total_cases.size(); i++) {
-            entries.add(new Entry(i, total_cases.get(i)));
+        for (int i = 0; i < total_cases.size() - 1; i++) {
+            if (i == 0) {
+                entries.add(new Entry(0, total_cases.get(0)));
+            } else {
+                entries.add(new Entry(i, total_cases.get(i + 1) - total_cases.get(i)));
+            }
         }
-        LineDataSet lineDataSet = new LineDataSet(entries, "TOTAL CASES");
+        LineDataSet lineDataSet = new LineDataSet(entries, "DAILY CASES");
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        XAxis axis = daily_confirmed_cases.getXAxis();
+        //axis.enableAxisLineDashedLine(10f,3f,0f);
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setLineWidth(1f);
         dataSets.add(lineDataSet);
         LineData data = new LineData(dataSets);
         daily_confirmed_cases.setData(data);
+        MPPointD
         daily_confirmed_cases.invalidate();
     }
 

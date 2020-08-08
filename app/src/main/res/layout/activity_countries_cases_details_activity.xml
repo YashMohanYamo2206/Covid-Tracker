@@ -28,13 +28,13 @@
                 tools:ignore="ContentDescription" />
 
             <TextView
-                android:textColor="@color/cool_grey"
                 android:id="@+id/last_updated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_margin="@dimen/text_20"
                 android:text="@string/last_updated"
+                android:textColor="@color/cool_grey"
                 tools:ignore="RelativeOverlap" />
 
         </RelativeLayout>
@@ -77,6 +77,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/flag" />
+
                 <TextView
                     android:id="@+id/total_cases"
                     android:layout_width="180sp"
@@ -93,7 +94,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/country_name" />
 
                 <TextView
-                    android:textColor="@color/prince_ton_orange"
                     android:id="@+id/active"
                     android:layout_width="170sp"
                     android:layout_height="100sp"
@@ -103,6 +103,7 @@
                     android:gravity="center"
                     android:padding="15sp"
                     android:text="@string/active"
+                    android:textColor="@color/prince_ton_orange"
                     android:textSize="20sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="1.0"
@@ -147,14 +148,14 @@
     </LinearLayout>
 
     <LinearLayout
-        android:padding="10sp"
         android:id="@+id/layout_bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="480sp"
+        android:layout_height="match_parent"
         android:background="@drawable/bg_bottom_sheet"
         android:orientation="vertical"
+        android:padding="10sp"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="150dp"
+        app:behavior_peekHeight="1000sp"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
         <ImageView
@@ -165,7 +166,8 @@
             android:layout_marginBottom="@dimen/space_x2"
             android:background="@drawable/bg_bottom_sheet_drag"
             android:paddingTop="@dimen/space"
-            app:srcCompat="@drawable/ic_drag_handle" />
+            app:srcCompat="@drawable/ic_drag_handle"
+            tools:ignore="ContentDescription" />
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="wrap_content"
@@ -180,15 +182,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="\nGRAPHS \n"
-                    android:textColor="#fff"
+                    android:text="@string/graphs"
+                    android:textColor="@color/colorAccent"
                     android:textSize="@dimen/text_32" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="@dimen/space_x2"
+                    android:text="DAILY CASES "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/text_20"
+                    tools:ignore="HardcodedText" />
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_x2"
-                    android:layout_marginTop="@dimen/space_x2"
                     android:layout_marginBottom="@dimen/space_x4"
                     android:background="@drawable/bg_rounded_light_grey">
 
@@ -204,11 +214,27 @@
                     </FrameLayout>
                 </HorizontalScrollView>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="@string/pinch_zoom"
+                    android:textColor="@color/cool_grey"
+                    android:textSize="@dimen/text_14" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="@dimen/space_x2"
+                    android:text="ACTIVE CASES "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/text_20"
+                    tools:ignore="HardcodedText" />
+
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_x2"
-                    android:layout_marginTop="@dimen/space_x2"
                     android:layout_marginBottom="@dimen/space_x4"
                     android:background="@drawable/bg_rounded_light_grey">
 
@@ -224,11 +250,27 @@
                     </FrameLayout>
                 </HorizontalScrollView>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="@string/pinch_zoom"
+                    android:textColor="@color/cool_grey"
+                    android:textSize="@dimen/text_14" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="@dimen/space_x2"
+                    android:text="RECOVERED CASES "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/text_20"
+                    tools:ignore="HardcodedText" />
+
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_x2"
-                    android:layout_marginTop="@dimen/space_x2"
                     android:layout_marginBottom="@dimen/space_x4"
                     android:background="@drawable/bg_rounded_light_grey">
 
@@ -244,11 +286,27 @@
                     </FrameLayout>
                 </HorizontalScrollView>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:padding="@dimen/space_x2"
+                    android:text="DEATH CASES "
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/text_20"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="@string/pinch_zoom"
+                    android:textColor="@color/cool_grey"
+                    android:textSize="@dimen/text_14" />
+
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_x2"
-                    android:layout_marginTop="@dimen/space_x2"
                     android:layout_marginBottom="@dimen/space_x4"
                     android:background="@drawable/bg_rounded_light_grey">
 

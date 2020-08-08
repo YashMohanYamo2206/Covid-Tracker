@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Toast;
 
 
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 description.setTextSize(13f);
                 PieChart.setDescription(description);
                 PieChart.setData(pieData);
+                PieChart.animateY(1500);
                 PieChart.invalidate();
             }
 
@@ -114,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 description.setTextSize(13f);
                 PieChart.setDescription(description);
                 PieChart.setData(pieData);
+                PieChart.animateY(1500);
                 PieChart.invalidate();
             }
 
@@ -129,6 +133,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void indian_states(View view) {
-        startActivity(new Intent(this,countries_cases_details_activity.class));
+     //   startActivity(new Intent(this,countries_cases_details_activity.class));
     }
 }
