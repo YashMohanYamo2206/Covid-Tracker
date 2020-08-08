@@ -8,18 +8,23 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.yash.delta_project.R;
 import com.yash.delta_project.gson_converters.countries_details;
 import com.yash.delta_project.interfaces.countries_interface;
 import com.yash.delta_project.retrofit_services.covid_api_services;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +113,10 @@ public class countries_cases_details_activity extends AppCompatActivity {
                 tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
                 tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
                 tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + date.get(date.size() - 1));
-                display_results_in_graphs(deaths, recovered, active, total_cases, date);
+                display_daily_cases(total_cases);
+                display_recovered_cases(recovered);
+                display_active_cases(active);
+                display_death_cases(deaths);
             }
 
             @Override
@@ -120,14 +128,56 @@ public class countries_cases_details_activity extends AppCompatActivity {
 
     }
 
-    private void display_results_in_graphs(List<Integer> deaths,
-                                           List<Integer> recovered,
-                                           List<Integer> active,
-                                           List<Integer> total_cases,
-                                           List<String> date) {
+    private void display_recovered_cases(@NotNull List<Integer> recovered) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < recovered.size(); i++) {
+            entries.add(new Entry(i, recovered.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "recovered CASES".toUpperCase());
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        recovered_cases.setData(data);
+        recovered_cases.invalidate();
+    }
 
-        
+    private void display_active_cases(@NotNull List<Integer> active) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < active.size(); i++) {
+            entries.add(new Entry(i, active.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "ACTIVE CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        active_cases.setData(data);
+        active_cases.invalidate();
+    }
 
+    private void display_death_cases(@NotNull List<Integer> deaths) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < deaths.size(); i++) {
+            entries.add(new Entry(i, deaths.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "DEATHS CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        death_cases.setData(data);
+        death_cases.invalidate();
+    }
+
+    private void display_daily_cases(@NotNull List<Integer> total_cases) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < total_cases.size(); i++) {
+            entries.add(new Entry(i, total_cases.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "TOTAL CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        daily_confirmed_cases.setData(data);
+        daily_confirmed_cases.invalidate();
     }
 
 
