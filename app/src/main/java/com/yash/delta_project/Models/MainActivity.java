@@ -133,6 +133,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void indian_states(View view) {
-     //   startActivity(new Intent(this,countries_cases_details_activity.class));
+       startActivity(new Intent(this,list_of_all_indian_states.class));
     }
 }

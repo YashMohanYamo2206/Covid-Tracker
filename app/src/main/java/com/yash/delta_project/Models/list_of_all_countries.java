@@ -118,6 +118,7 @@ public class list_of_all_countries extends AppCompatActivity implements countrie
         Log.d("onItemClick: ", String.valueOf(position));
         Intent intent = new Intent(this, countries_cases_details_activity.class);
         intent.putExtra("countryName",countries.get(position).getSlug());
+        intent.putExtra("imgUrl",countries.get(position).getISO2());
         startActivity(intent);
     }
 }

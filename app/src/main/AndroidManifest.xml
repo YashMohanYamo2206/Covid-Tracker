@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Models.countries_cases_details_activity"></activity>
+        <activity android:name=".Models.indian_state_cases_details"></activity>
+        <activity android:name=".Models.list_of_all_indian_states" />
+        <activity android:name=".Models.countries_cases_details_activity" />
         <activity android:name=".Models.list_of_all_countries" />
         <activity android:name=".Models.MainActivity">
             <intent-filter>

@@ -12,4 +12,6 @@
     <string name="deaths">DEATHS \n\n</string>
     <string name="graphs">\nGRAPHS \n</string>
     <string name="pinch_zoom">Pinch to zoom in or zoom out data</string>
+    <string name="loading_screen">LOADING....</string>
+    <string name="indian_states_data">INDIAN STATES DATA</string>
 </resources>

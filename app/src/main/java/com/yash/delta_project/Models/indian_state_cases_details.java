@@ -10,19 +10,22 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.squareup.picasso.Picasso;
 import com.yash.delta_project.R;
 import com.yash.delta_project.axis_formatter.X_axis_formatter__line_chart;
 import com.yash.delta_project.gson_converters.countries_details;
@@ -39,35 +42,33 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class countries_cases_details_activity extends AppCompatActivity {
-    List<Integer> deaths = new ArrayList<>();
-    List<Integer> recovered = new ArrayList<>();
-    List<Integer> active = new ArrayList<>();
-    List<Integer> total_cases = new ArrayList<>();
-    List<String> date = new ArrayList<>();
+@SuppressLint("SetTextI18n")
+public class indian_state_cases_details extends AppCompatActivity {
+    long death= 0L;
+    List<Integer> colors = new ArrayList<>();
+    PieChart PieChart;
     LineChart daily_confirmed_cases, active_cases, recovered_cases, death_cases;
     TextView tv_countryName, tv_totalCases, tv_active, tv_recovered, tv_deaths, tv_lastUpdated;
-    ImageView flag;
     CoordinatorLayout coordinatorLayout;
     BottomSheetBehavior bottomSheetBehavior;
     ShimmerFrameLayout shimmerFrameLayout;
+    List<PieEntry> entries = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_countries_cases_details_activity);
-        initialise_views();
+        setContentView(R.layout.activity_indian_state_cases_details);
+        tv_countryName = findViewById(R.id.country_name);
         Intent intent = getIntent();
-        initialise_retrofit_services(intent.getStringExtra("countryName"));
-        flag = findViewById(R.id.flag);
-        String img_url = "https://www.countryflags.io/"+intent.getStringExtra("imgUrl")+"/shiny/64.png";
-        Picasso.with(this).load(img_url).into(flag);
+        tv_countryName.setText(Objects.requireNonNull(intent.getStringExtra("stateName")).toUpperCase());
+        initialise_views();
+        initialise_graphs();
     }
 
     private void initialise_views() {
+        PieChart = findViewById(R.id.state_pie_chart);
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         shimmerFrameLayout = findViewById(R.id.shimmer_country);
-        tv_countryName = findViewById(R.id.country_name);
         tv_totalCases = findViewById(R.id.total_cases);
         tv_totalCases.getLayoutParams().width = coordinatorLayout.getWidth() / 2 - 10;
         tv_active = findViewById(R.id.active);
@@ -77,7 +78,7 @@ public class countries_cases_details_activity extends AppCompatActivity {
         tv_recovered = findViewById(R.id.recovered);
         tv_recovered.getLayoutParams().height = (coordinatorLayout.getWidth() / 2 - 10);
         tv_lastUpdated = findViewById(R.id.last_updated);
-
+        tv_lastUpdated.setText(tv_lastUpdated.getText()+" "+list_of_all_indian_states.dates.get(list_of_all_indian_states.dates.size()-1));
         View bottom_sheet = findViewById(R.id.layout_bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet);
         // bottom_sheet.getLayoutParams().height = (int)tv_countryName.getY() + 20;
@@ -87,64 +88,53 @@ public class countries_cases_details_activity extends AppCompatActivity {
         active_cases = findViewById(R.id.active_cases_line_chart);
         recovered_cases = findViewById(R.id.recovered_cases_line_chart);
         death_cases = findViewById(R.id.death_cases_line_chart);
-    }
-
-
-    private void initialise_retrofit_services(String s) {
-        countries_interface api_services = covid_api_services.get_countries().create(countries_interface.class);
-        api_services.getCountryDetail(s).enqueue(new Callback<List<countries_details>>() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onResponse(@NonNull Call<List<countries_details>> call, @NonNull Response<List<countries_details>> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(countries_cases_details_activity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                assert response.body() != null;
-                if (response.body().isEmpty()) {
-                    shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
-                    tv_totalCases.setText(tv_totalCases.getText() + "NULL");
-                    tv_active.setText(tv_active.getText() + "NULL");
-                    tv_deaths.setText(tv_deaths.getText() + "NULL");
-                    tv_recovered.setText(tv_recovered.getText() + "NULL");
-                    return;
-                }
-                shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
-                tv_countryName.setText(response.body().get(0).getCountry().toUpperCase());
-                for (countries_details countries_details : response.body()) {
-                    deaths.add(countries_details.getDeaths());
-                    recovered.add(countries_details.getRecovered());
-                    total_cases.add(countries_details.getConfirmed());
-                    active.add(Math.max(countries_details.getConfirmed() - countries_details.getDeaths() - countries_details.getRecovered(), 0));
-                    date.add(countries_details.getDate().substring(0, 10));
-                }
-                tv_totalCases.setText(tv_totalCases.getText() + String.valueOf(total_cases.get(total_cases.size() - 1)));
-                tv_active.setText(tv_active.getText() + String.valueOf(active.get(active.size() - 1)));
-                tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
-                tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
-                tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + date.get(date.size() - 1));
-                display_daily_cases(total_cases, date);
-                display_recovered_cases(recovered, date);
-                display_active_cases(active, date);
-                display_death_cases(deaths, date);
-            }
-
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void onFailure(@NonNull Call<List<countries_details>> call, @NonNull Throwable t) {
-                Log.d("onFailure: ", Objects.requireNonNull(t.getMessage()));
-                shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
-                tv_totalCases.setText(tv_totalCases.getText() + "NULL");
-                tv_active.setText(tv_active.getText() + "NULL");
-                tv_deaths.setText(tv_deaths.getText() + "NULL");
-                tv_recovered.setText(tv_recovered.getText() + "NULL");
-                Toast.makeText(countries_cases_details_activity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
-            }
-        });
 
     }
 
-    private void display_recovered_cases(@NotNull List<Integer> recovered, List<String> date) {
+    private void initialise_graphs() {
+        display_daily_cases(list_of_all_indian_states.confirmed_data, list_of_all_indian_states.dates);
+        display_recovered_cases(list_of_all_indian_states.recovered_data, list_of_all_indian_states.dates);
+        display_death_cases(list_of_all_indian_states.deaths_data, list_of_all_indian_states.dates);
+        display_active_cases(list_of_all_indian_states.active_data, list_of_all_indian_states.dates);
+
+        shimmerFrameLayout.hideShimmer();
+        display_pie_chart();
+    }
+
+    private void display_pie_chart() {
+        colors.add(Color.YELLOW);
+        colors.add(Color.BLUE);
+        colors.add(Color.RED);
+        entries.add(new PieEntry(death,"Deaths"));
+        PieDataSet data_set = new PieDataSet(entries, "");
+        data_set.setValueTextSize(13f);
+        data_set.setColors(colors);
+        PieData pieData = new PieData(data_set);
+        PieChart.setDrawEntryLabels(false);
+        Description description = new Description();
+        description.setText((String) tv_countryName.getText());
+        description.setTextColor(Color.YELLOW);
+        description.setTextSize(13f);
+        PieChart.setDescription(description);
+        PieChart.setData(pieData);
+        PieChart.animateY(1500);
+        PieChart.invalidate();
+    }
+
+
+    private void display_recovered_cases(@NotNull List<Long> recovered, List<String> date) {
+
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < recovered.size(); i++) {
+            sum += recovered.get(i);
+            cumulative.add(sum);
+            Log.d("recovered_cases: ", String.valueOf(sum));
+        }
+        recovered = new ArrayList<>();
+        recovered = cumulative;
+        entries.add(new PieEntry(recovered.get(recovered.size() - 1), "Recovered cases"));
+        tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < recovered.size(); i++) {
             entries.add(new Entry(i, recovered.get(i)));
@@ -164,9 +154,20 @@ public class countries_cases_details_activity extends AppCompatActivity {
         recovered_cases.invalidate();
     }
 
-    private void display_active_cases(@NotNull List<Integer> active, List<String> date) {
+    private void display_active_cases(@NotNull List<Long> active, List<String> date) {
+
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
         for (int i = 0; i < active.size(); i++) {
-            Log.d("display_active_cases: ", date.get(i));
+            sum += active.get(i);
+            cumulative.add(sum);
+        }
+        active = new ArrayList<>();
+        active = cumulative;
+        entries.add(new PieEntry(active.get(active.size() - 1), "Active cases"));
+        tv_active.setText(tv_active.getText() + String.valueOf(active.get(active.size() - 1)));
+        for (int i = 0; i < active.size(); i++) {
+            Log.d("display_active_cases: ", String.valueOf(active.get(i)));
         }
         ArrayList<Entry> entries = new ArrayList<>();
         for (int i = 0; i < active.size(); i++) {
@@ -186,8 +187,19 @@ public class countries_cases_details_activity extends AppCompatActivity {
         active_cases.invalidate();
     }
 
-    private void display_death_cases(@NotNull List<Integer> deaths, List<String> date) {
+    private void display_death_cases(@NotNull List<Long> deaths, List<String> date) {
         ArrayList<Entry> entries = new ArrayList<>();
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < deaths.size(); i++) {
+            sum += deaths.get(i);
+            cumulative.add(sum);
+        }
+        deaths = new ArrayList<>();
+        deaths = cumulative;
+        death = sum;
+        //entries.add(new PieEntry(sum, "Death cases"));
+        tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
         for (int i = 0; i < deaths.size(); i++) {
             entries.add(new Entry(i, deaths.get(i)));
         }
@@ -206,14 +218,18 @@ public class countries_cases_details_activity extends AppCompatActivity {
         death_cases.invalidate();
     }
 
-    private void display_daily_cases(@NotNull List<Integer> total_cases, List<String> date) {
+    @SuppressLint("SetTextI18n")
+    private void display_daily_cases(@NotNull List<Long> total_cases, List<String> date) {
         ArrayList<Entry> entries = new ArrayList<>();
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < total_cases.size(); i++) {
+            sum += total_cases.get(i);
+            cumulative.add(sum);
+        }
+        tv_totalCases.setText(tv_totalCases.getText() + String.valueOf(cumulative.get(cumulative.size() - 1)));
         for (int i = 0; i < total_cases.size() - 1; i++) {
-            if (i == 0) {
-                entries.add(new Entry(0, total_cases.get(0)));
-            } else {
-                entries.add(new Entry(i, total_cases.get(i + 1) - total_cases.get(i)));
-            }
+            entries.add(new Entry(i, total_cases.get(i)));
         }
         LineDataSet lineDataSet = new LineDataSet(entries, "DAILY CASES");
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
@@ -230,7 +246,6 @@ public class countries_cases_details_activity extends AppCompatActivity {
         daily_confirmed_cases.setData(data);
         daily_confirmed_cases.invalidate();
     }
-
 
     public void back_button(View view) {
         finish();
