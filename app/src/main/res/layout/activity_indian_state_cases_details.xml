@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#9E2316"
-    tools:context=".Models.indian_state_cases_details">
+    tools:context=".Activities.indian_state_cases_details">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -209,7 +209,8 @@
 
                     <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        >
 
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/daily_new_cases_line_chart"
@@ -254,6 +255,7 @@
                             android:padding="@dimen/text_20" />
                     </FrameLayout>
                 </HorizontalScrollView>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -261,6 +263,7 @@
                     android:text="@string/pinch_zoom"
                     android:textColor="@color/cool_grey"
                     android:textSize="@dimen/text_14" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -288,6 +291,7 @@
                             android:padding="@dimen/text_20" />
                     </FrameLayout>
                 </HorizontalScrollView>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -295,6 +299,7 @@
                     android:text="@string/pinch_zoom"
                     android:textColor="@color/cool_grey"
                     android:textSize="@dimen/text_14" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -304,6 +309,7 @@
                     android:textColor="@color/colorAccent"
                     android:textSize="@dimen/text_20"
                     tools:ignore="HardcodedText" />
+
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -321,6 +327,7 @@
                             android:padding="@dimen/text_20" />
                     </FrameLayout>
                 </HorizontalScrollView>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

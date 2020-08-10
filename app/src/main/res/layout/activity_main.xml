@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_death"
     android:orientation="vertical"
-    tools:context=".Models.MainActivity">
+    tools:context=".Activities.MainActivity">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -116,7 +116,6 @@
             android:layout_height="700dp"
             android:layout_below="@+id/rl_of_cardViews"
             android:orientation="vertical">
-
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -146,6 +145,13 @@
                     android:layout_height="300dp"
                     android:padding="@dimen/text_20" />
             </FrameLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:fontFamily="@font/odin_rounded"
+                android:text=" ALL THE DATA HAS BEEN TAKEN FROM \nhttps://covid19api.com/ \nhttps://github.com/covid19india/api \ncoronavirus-19-api.herokuapp.com \nhttps://www.countryflags.io/"
+                tools:ignore="HardcodedText" />
         </LinearLayout>
     </RelativeLayout>
 </ScrollView>
