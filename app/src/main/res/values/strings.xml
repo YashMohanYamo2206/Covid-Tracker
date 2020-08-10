@@ -14,4 +14,5 @@
     <string name="pinch_zoom">SWIPE ----> Pinch to zoom in or zoom out data</string>
     <string name="loading_screen">LOADING....</string>
     <string name="indian_states_data">INDIAN STATES DATA</string>
+    <string name="swipe_on_graphs"><![CDATA[SWIPE ---> ON GRAPHS]]></string>
 </resources>

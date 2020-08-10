@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 data_set.setValueTextSize(13f);
                 data_set.setColors(colors);
                 PieData pieData = new PieData(data_set);
-                PieChart.setDrawEntryLabels(false);
+                PieChart.setDrawEntryLabels(true);
+                PieChart.setEntryLabelColor(Color.BLACK);
                 Description description = new Description();
                 description.setText("WORLD DATA ");
                 description.setTextColor(Color.YELLOW);
@@ -108,7 +109,8 @@ public class MainActivity extends AppCompatActivity {
                 data_set.setValueTextSize(13f);
                 data_set.setColors(colors);
                 PieData pieData = new PieData(data_set);
-                PieChart.setDrawEntryLabels(false);
+                PieChart.setDrawEntryLabels(true);
+                PieChart.setEntryLabelColor(Color.BLACK);
                 Description description = new Description();
                 description.setText("INDIA DATA ");
                 description.setTextColor(Color.YELLOW);

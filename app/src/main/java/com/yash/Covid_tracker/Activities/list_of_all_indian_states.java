@@ -179,7 +179,7 @@ public class list_of_all_indian_states extends AppCompatActivity implements indi
         states.add("delhi");
         states.add("dadra and nagar haveli");
         states.add("goa");
-        states.add("gujrat");
+        states.add("gujarat");
         states.add("himachal pradesh");
         states.add("haryana");
         states.add("jharkhand");
