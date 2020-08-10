@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.yash.delta_project",
+  "applicationId": "com.yash.Covid_tracker",
   "variantName": "release",
   "elements": [
     {
