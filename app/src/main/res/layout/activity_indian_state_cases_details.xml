@@ -6,15 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#9E2316"
-    tools:context=".Activities.indian_state_cases_details">
+    tools:context=".Activities.indian_state_cases_details"
+    tools:ignore="HardcodedText">
 
     <LinearLayout
+        tools:ignore="ContentDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <ImageView
@@ -25,7 +27,28 @@
                 android:layout_alignParentTop="true"
                 android:onClick="back_button"
                 android:src="@drawable/ic_baseline_arrow_back_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="ContentDescription" />
+
+            <Button
+                android:visibility="gone"
+                android:id="@+id/pin_unpin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="6dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="6dp"
+                android:background="#000"
+                android:onClick="pin_unpin"
+                android:text="pin"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/last_updated"
+                app:layout_constraintStart_toEndOf="@+id/back_button"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/last_updated"
@@ -35,11 +58,15 @@
                 android:layout_margin="@dimen/text_20"
                 android:text="@string/last_updated"
                 android:textColor="@color/cool_grey"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="RelativeOverlap" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.facebook.shimmer.ShimmerFrameLayout
+
             android:id="@+id/shimmer_country"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,7 +94,7 @@
                     tools:ignore="ContentDescription" />
 
                 <TextView
-                    android:id="@+id/country_name"
+                    android:id="@+id/state_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="28dp"
@@ -78,76 +105,246 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/state_pie_chart" />
 
-                <TextView
-                    android:id="@+id/total_cases"
-                    android:layout_width="150sp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cv_total_cases"
+                    android:layout_width="170sp"
                     android:layout_height="100sp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="32dp"
                     android:layout_marginEnd="8dp"
                     android:background="@drawable/bg_rounded_total_cases"
-                    android:gravity="center"
-                    android:padding="15sp"
-                    android:text="@string/total_cases"
-                    android:textColor="@color/prince_ton_orange"
-                    android:textSize="20sp"
-                    app:layout_constraintEnd_toStartOf="@+id/active"
+                    app:layout_constraintEnd_toStartOf="@+id/cv_active"
                     app:layout_constraintHorizontal_bias="0.48"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/country_name" />
+                    app:layout_constraintTop_toBottomOf="@+id/state_name">
+
+                    <TextView
+                        android:textSize="20sp"
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TOTAL CASES"
+                        android:textColor="@color/prince_ton_orange"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.197" />
+
+                    <TextView
+                        android:textSize="20sp"
+                        android:id="@+id/total_cases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/prince_ton_orange"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/textView"
+                        app:layout_constraintStart_toStartOf="@+id/textView"
+                        app:layout_constraintTop_toBottomOf="@+id/textView" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:id="@+id/active"
+                    android:id="@+id/delta_total_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20sp"
+                    android:layout_marginBottom="8dp"
+                    android:text="0000000"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@+id/cv_recovered"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_total_cases"
+                    app:layout_constraintStart_toStartOf="@+id/cv_total_cases"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_total_cases"
+                    />
+
+                <ImageView
+                    android:id="@+id/arrow_total_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_increase"
+                    app:layout_constraintBottom_toBottomOf="@+id/delta_total_cases"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_total_cases"
+                    app:layout_constraintStart_toEndOf="@+id/delta_total_cases"
+                    app:layout_constraintTop_toTopOf="@+id/delta_total_cases"
+                    tools:ignore="ContentDescription" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cv_active"
                     android:layout_width="170sp"
                     android:layout_height="100sp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="32dp"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/bg_rounded_active"
-                    android:gravity="center"
-                    android:padding="15sp"
-                    android:text="@string/active"
-                    android:textColor="@color/prince_ton_orange"
-                    android:textSize="20sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/total_cases"
-                    app:layout_constraintTop_toBottomOf="@+id/country_name" />
+                    app:layout_constraintStart_toEndOf="@+id/cv_total_cases"
+                    app:layout_constraintTop_toBottomOf="@+id/state_name">
+
+                    <TextView
+                        android:id="@+id/textView1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIVE"
+                        android:textSize="20sp"
+                        android:textColor="@color/prince_ton_orange"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.197" />
+
+                    <TextView
+                        android:id="@+id/active"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/prince_ton_orange"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/textView1"
+                        app:layout_constraintStart_toStartOf="@+id/textView1"
+                        app:layout_constraintTop_toBottomOf="@+id/textView1" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:id="@+id/recovered"
+                    android:id="@+id/delta_active_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="0000000"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toTopOf="@+id/cv_deaths"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_active"
+                    app:layout_constraintStart_toStartOf="@+id/cv_active"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_active" />
+
+                <ImageView
+                    android:id="@+id/arrow_active_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_increase"
+                    app:layout_constraintBottom_toBottomOf="@+id/delta_active_cases"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_active"
+                    app:layout_constraintStart_toEndOf="@+id/delta_active_cases"
+                    app:layout_constraintTop_toTopOf="@+id/delta_active_cases"
+                    />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cv_recovered"
                     android:layout_width="170sp"
                     android:layout_height="100sp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="16dp"
                     android:background="@drawable/bg_rounded_yellow"
-                    android:gravity="center"
-                    android:padding="15sp"
-                    android:text="@string/recovered"
-                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/deaths"
+                    app:layout_constraintEnd_toStartOf="@+id/cv_deaths"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/total_cases"
-                    app:layout_constraintVertical_bias="0.316" />
+                    app:layout_constraintTop_toBottomOf="@+id/cv_total_cases"
+                    app:layout_constraintVertical_bias="0.316">
+
+                    <TextView
+                        android:id="@+id/textView2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RECOVERED"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.197" />
+
+                    <TextView
+                        android:id="@+id/recovered"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/textView2"
+                        app:layout_constraintStart_toStartOf="@+id/textView2"
+                        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:id="@+id/deaths"
+                    android:id="@+id/delta_recovered_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0000000"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_recovered"
+                    app:layout_constraintStart_toStartOf="@+id/cv_recovered"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_recovered" />
+
+                <ImageView
+                    android:id="@+id/arrow_recovered_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_increase"
+                    app:layout_constraintBottom_toBottomOf="@+id/delta_recovered_cases"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_recovered"
+                    app:layout_constraintStart_toEndOf="@+id/delta_recovered_cases"
+                    app:layout_constraintTop_toTopOf="@+id/delta_recovered_cases" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cv_deaths"
                     android:layout_width="170sp"
                     android:layout_height="100sp"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/bg_rounded_death"
-                    android:gravity="center"
-                    android:padding="15sp"
-                    android:text="@string/deaths"
-                    android:textColor="#990E0101"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/recovered"
+                    app:layout_constraintBottom_toBottomOf="@+id/cv_recovered"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/recovered"
-                    app:layout_constraintTop_toTopOf="@+id/recovered"
-                    app:layout_constraintVertical_bias="0.00999999" />
+                    app:layout_constraintStart_toEndOf="@+id/cv_recovered"
+                    app:layout_constraintTop_toTopOf="@+id/cv_recovered"
+                    app:layout_constraintVertical_bias="0.00999999">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DEATHS"
+                        android:textSize="20sp"
+                        android:textColor="#990E0101"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.197" />
+
+                    <TextView
+                        android:id="@+id/deaths"
+                        android:textColor="#990E0101"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="@+id/textView3"
+                        app:layout_constraintStart_toStartOf="@+id/textView3"
+                        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/delta_death_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0000000"
+                    android:textSize="15sp"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_deaths"
+                    app:layout_constraintStart_toStartOf="@+id/cv_deaths"
+                    app:layout_constraintTop_toBottomOf="@+id/cv_deaths" />
+
+                <ImageView
+                    android:id="@+id/arrow_death_cases"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_increase"
+                    app:layout_constraintBottom_toBottomOf="@+id/delta_death_cases"
+                    app:layout_constraintEnd_toEndOf="@+id/cv_deaths"
+                    app:layout_constraintStart_toEndOf="@+id/delta_death_cases"
+                    app:layout_constraintTop_toTopOf="@+id/delta_death_cases" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
     </LinearLayout>
@@ -190,6 +387,7 @@
                     android:text="@string/graphs"
                     android:textColor="@color/colorAccent"
                     android:textSize="@dimen/text_32" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -197,6 +395,7 @@
                     android:text="@string/swipe_on_graphs"
                     android:textColor="@color/cool_grey"
                     android:textSize="@dimen/text_32" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -215,8 +414,7 @@
 
                     <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        >
+                        android:layout_height="wrap_content">
 
                         <com.github.mikephil.charting.charts.LineChart
                             android:id="@+id/daily_new_cases_line_chart"

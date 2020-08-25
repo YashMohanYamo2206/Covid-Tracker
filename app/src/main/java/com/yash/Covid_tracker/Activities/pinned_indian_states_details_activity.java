@@ -1,68 +1,40 @@
-/**
- * @param Example_input
- * {
- * {
- * "an": "0",
- * "ap": "1",
- * "ar": "0",
- * "as": "0",
- * "br": "0",
- * "ch": "0",
- * "ct": "0",
- * "date": "14-Mar-20",
- * "dd": "0",
- * "dl": "7",
- * "dn": "0",
- * "ga": "0",
- * "gj": "0",
- * "hp": "0",
- * "hr": "14",
- * "jh": "0",
- * "jk": "2",
- * "ka": "6",
- * "kl": "19",
- * "la": "0",
- * "ld": "0",
- * "mh": "14",
- * "ml": "0",
- * "mn": "0",
- * "mp": "0",
- * "mz": "0",
- * "nl": "0",
- * "or": "0",
- * "pb": "1",
- * "py": "0",
- * "rj": "3",
- * "sk": "0",
- * "status": "Confirmed",
- * "tg": "1",
- * "tn": "1",
- * "tr": "0",
- * "tt": "81",
- * "un": "0",
- * "up": "12",
- * "ut": "0",
- * "wb": "0"
- * }, {....}, ...
- * }
- */
 package com.yash.Covid_tracker.Activities;
 
+import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.yash.Covid_tracker.Adapters.indian_states_list_adapter;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.yash.Covid_tracker.DataBase.pinned_indian_states_DataBase;
+import com.yash.Covid_tracker.DataBase.pinned_indian_states_contract;
 import com.yash.Covid_tracker.R;
+import com.yash.Covid_tracker.axis_formatter.X_axis_formatter__line_chart;
 import com.yash.Covid_tracker.gson_converters.dummy_states_daily;
 import com.yash.Covid_tracker.gson_converters.indian_state_daily_details;
 import com.yash.Covid_tracker.interfaces.india_total_data;
@@ -78,49 +50,98 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class list_of_all_indian_states extends AppCompatActivity implements indian_states_list_adapter.OnItemClickListener {
-
-    RecyclerView recyclerView;
-    indian_states_list_adapter adapter;
-    SearchView searchView;
-    public static List<String> dates = new ArrayList<>();
-    List<String> states = new ArrayList<>();
-    TextView loading, indian_states;
+public class pinned_indian_states_details_activity extends AppCompatActivity {
+    private SQLiteDatabase mDatabase;
+    int position;
+    long death = 0L;
+    String stateName;
+    List<Integer> colors = new ArrayList<>();
+    List<PieEntry> entries = new ArrayList<>();
     ShimmerFrameLayout shimmerFrameLayout;
-    List<indian_state_daily_details> confirmed;
-    List<indian_state_daily_details> recovered;
-    List<indian_state_daily_details> deaths;
-    public static List<Long> confirmed_data = new ArrayList<>();
-    public static List<Long> recovered_data = new ArrayList<>();
-    public static List<Long> deaths_data = new ArrayList<>();
-    public static List<Long> active_data = new ArrayList<>();
-    //List<List<String>> STATES = new ArrayList<>();
-    //List<List<Long>> state_cases_details = new ArrayList<>();
+    TextView tv_stateName, tv_totalCases, tv_active, tv_recovered, tv_deaths, tv_lastUpdated, tv_delta_totalCases, tv_delta_activeCases, tv_delta_recoveredCases, tv_delta_deathCases;
+    List<indian_state_daily_details> confirmed = new ArrayList<>();
+    List<String> dates = new ArrayList<>();
+    List<indian_state_daily_details> recovered = new ArrayList<>();
+    List<indian_state_daily_details> deaths = new ArrayList<>();
+    ImageView iv_arrow_totalCases, iv_arrow_activeCases, iv_arrow_recoveredCases, iv_arrow_deathCases;
+    BottomSheetBehavior bottomSheetBehavior;
+    PieChart PieChart;
+    LineChart daily_confirmed_cases, active_cases, recovered_cases, death_cases;
+    List<Long> confirmed_data = new ArrayList<>();
+    List<Long> recovered_data = new ArrayList<>();
+    List<Long> deaths_data = new ArrayList<>();
+    List<Long> active_data = new ArrayList<>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_of_places);
-        loading = findViewById(R.id.loading);
-        shimmerFrameLayout = findViewById(R.id.shimmer);
-        searchView = findViewById(R.id.search_view);
-        searchView.setVisibility(View.GONE);
-        init_recyclerview();
+        setContentView(R.layout.activity_indian_state_cases_details);
+        tv_stateName = findViewById(R.id.state_name);
+        Intent intent = getIntent();
+        position = intent.getIntExtra("position", -1);
+        stateName = intent.getStringExtra("stateName");
+        tv_stateName.setText(stateName);
+        pinned_indian_states_DataBase db = new pinned_indian_states_DataBase(this);
+        mDatabase = db.getWritableDatabase();
+        initialise_views();
         init();
     }
 
-    private void init_recyclerview() {
-        indian_states = findViewById(R.id.indian_states);
-        indian_states.setVisibility(View.VISIBLE);
-        recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        states = getStates().get(0);
-        adapter = new indian_states_list_adapter(states);
-        recyclerView.setAdapter(adapter);
-        adapter.setOnItemClickListener(this);
-        confirmed = new ArrayList<>();
-        recovered = new ArrayList<>();
-        deaths = new ArrayList<>();
+    @SuppressLint("SetTextI18n")
+    private void initialise_views() {
+        PieChart = findViewById(R.id.state_pie_chart);
+        shimmerFrameLayout = findViewById(R.id.shimmer_country);
+        tv_totalCases = findViewById(R.id.total_cases);
+        tv_active = findViewById(R.id.active);
+        tv_deaths = findViewById(R.id.deaths);
+        tv_recovered = findViewById(R.id.recovered);
+        tv_lastUpdated = findViewById(R.id.last_updated);
+        //tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + list_of_all_indian_states.dates.get(list_of_all_indian_states.dates.size() - 1));
+        tv_delta_totalCases = findViewById(R.id.delta_total_cases);
+        tv_delta_activeCases = findViewById(R.id.delta_active_cases);
+        tv_delta_recoveredCases = findViewById(R.id.delta_recovered_cases);
+        tv_delta_deathCases = findViewById(R.id.delta_death_cases);
+        iv_arrow_totalCases = findViewById(R.id.arrow_total_cases);
+        iv_arrow_activeCases = findViewById(R.id.arrow_active_cases);
+        iv_arrow_recoveredCases = findViewById(R.id.arrow_recovered_cases);
+        iv_arrow_deathCases = findViewById(R.id.arrow_death_cases);
+
+        Button button = findViewById(R.id.pin_unpin);
+        button.setVisibility(View.VISIBLE);
+        if (CheckIsDataAlreadyInDBorNot(stateName)) {
+            button.setText("UNPIN");
+        } else {
+            button.setText("PIN");
+        }
+
+        View bottom_sheet = findViewById(R.id.layout_bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet);
+
+
+        daily_confirmed_cases = findViewById(R.id.daily_new_cases_line_chart);
+        active_cases = findViewById(R.id.active_cases_line_chart);
+        recovered_cases = findViewById(R.id.recovered_cases_line_chart);
+        death_cases = findViewById(R.id.death_cases_line_chart);
+
+
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    findViewById(R.id.layout_bottom_sheet).setBackground(getDrawable(R.drawable.bg_bottom_sheet_completely_open));
+                    findViewById(R.id.img_drag).setBackground(getDrawable(R.drawable.bg_bottom_sheet_drag_completely_open));
+                } else {
+                    findViewById(R.id.layout_bottom_sheet).setBackground(getDrawable(R.drawable.bg_bottom_sheet));
+                    findViewById(R.id.img_drag).setBackground(getDrawable(R.drawable.bg_bottom_sheet_drag));
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
     }
 
     private void init() {
@@ -129,13 +150,9 @@ public class list_of_all_indian_states extends AppCompatActivity implements indi
             @Override
             public void onResponse(@NotNull Call<dummy_states_daily> call, @NotNull Response<dummy_states_daily> response) {
                 if (!response.isSuccessful()) {
-                    loading.setText(R.string.network_error_message);
-                    shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 1000);
-                    Toast.makeText(list_of_all_indian_states.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(pinned_indian_states_details_activity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                loading.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.VISIBLE);
                 List<indian_state_daily_details> indian_state_daily_details;
                 assert response.body() != null;
                 indian_state_daily_details = response.body().getIndianStateDailyDetails();
@@ -148,66 +165,65 @@ public class list_of_all_indian_states extends AppCompatActivity implements indi
                         deaths.add(indian_state_daily_details.get(i));
                     }
                 }
+                setCasesData(confirmed, recovered, deaths);
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onFailure(@NotNull Call<dummy_states_daily> call, @NotNull Throwable t) {
-                loading.setText(R.string.network_error_message);
-                Toast.makeText(list_of_all_indian_states.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(pinned_indian_states_details_activity.this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
                 Log.d("onFailure: ", Objects.requireNonNull(t.getMessage()));
-                recyclerView.setVisibility(View.GONE);
-                shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 1000);
+                tv_totalCases.setText(tv_totalCases.getText() + "NULL");
+                shimmerFrameLayout.hideShimmer();
+                tv_active.setText(tv_active.getText() + "NULL");
+                tv_deaths.setText(tv_deaths.getText() + "NULL");
+                tv_recovered.setText(tv_recovered.getText() + "NULL");
             }
         });
     }
 
-    @NotNull
-    private List<List<String>> getStates() {
-        List<List<String>> STATES = new ArrayList<>();
-        List<String> states = new ArrayList<>();
-        states.add("andaman and  nicobar");
-        states.add("andhra pradesh");
-        states.add("arunachal pradesh");
-        states.add("assam");
-        states.add("bihar");
-        states.add("chandigarh");
-        states.add("chattisgarh");
-        states.add("daman and diu");
-        states.add("delhi");
-        states.add("dadra and nagar haveli");
-        states.add("goa");
-        states.add("gujarat");
-        states.add("himachal pradesh");
-        states.add("haryana");
-        states.add("jharkhand");
-        states.add("jammu and kashmir");
-        states.add("karnataka");
-        states.add("kerala");
-        states.add("ladakh");
-        states.add("lakshadweep");
-        states.add("maharashtra");
-        states.add("meghalaya");
-        states.add("manipur");
-        states.add("madhya pradesh");
-        states.add("mizoram");
-        states.add("nagaland");
-        states.add("odisha");
-        states.add("punjab");
-        states.add("pondicherry");
-        states.add("rajasthan");
-        states.add("sikkim");
-        states.add("telangana");
-        states.add("tamil nadu");
-        states.add("tripura");
-        states.add("uttar pradesh");
-        states.add("uttrakhand");
-        states.add("west bengal");
-        STATES.add(states);
-        return STATES;
+    @SuppressLint("SetTextI18n")
+    public void pin_unpin(View view) {
+        System.out.println(CheckIsDataAlreadyInDBorNot(stateName));
+        if (!CheckIsDataAlreadyInDBorNot(stateName)) {
+            ContentValues cv = new ContentValues();
+            cv.put(pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_STATE_NAME, stateName);
+            cv.put(pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_POSITION, position);
+            Toast.makeText(this, stateName + " pinned " + position, Toast.LENGTH_SHORT).show();
+            mDatabase.insert(pinned_indian_states_contract.pinned_indian_states_entry.TABLE_NAME, null, cv);
+            Button button = findViewById(R.id.pin_unpin);
+            button.setText("UNPIN");
+        } else {
+            Button button = findViewById(R.id.pin_unpin);
+            button.setText("PIN");
+            Toast.makeText(this, stateName + " unpinned ", Toast.LENGTH_SHORT).show();
+            mDatabase.delete(pinned_indian_states_contract.pinned_indian_states_entry.TABLE_NAME, pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_STATE_NAME + "=?", new String[]{stateName});
+        }
     }
 
-    @Override
-    public void onItemClick(int position) {
+    public boolean CheckIsDataAlreadyInDBorNot(String stateName) {
+        String Query = "SELECT EXISTS (SELECT * FROM " + pinned_indian_states_contract.pinned_indian_states_entry.TABLE_NAME + " WHERE " + pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_STATE_NAME + "='" + stateName + "' LIMIT 1)";
+        Cursor cursor = mDatabase.rawQuery(Query, null);
+        cursor.moveToFirst();
+
+        if (cursor.getInt(0) == 1) {
+            cursor.close();
+            return true;
+        }
+        cursor.close();
+        return false;
+
+    }
+
+    public void back_button(View view) {
+        finish();
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void setCasesData(List<indian_state_daily_details> confirmed,
+                             List<indian_state_daily_details> recovered,
+                             List<indian_state_daily_details> deaths) {
+
         active_data = new ArrayList<>();
         confirmed_data = new ArrayList<>();
         recovered_data = new ArrayList<>();
@@ -750,20 +766,187 @@ public class list_of_all_indian_states extends AppCompatActivity implements indi
                     ;
                 }
             }
+            tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + list_of_all_indian_states.dates.get(list_of_all_indian_states.dates.size() - 1));
+            initialise_graphs(confirmed_data, recovered_data, deaths_data, active_data);
             for (long rec : confirmed_data)
                 Log.d("rec: ", String.valueOf(rec));
             for (long rec : active_data)
                 Log.d("act: ", String.valueOf(rec));
             for (long rec : deaths_data)
                 Log.d("ded: ", String.valueOf(rec));
-            Intent intent = new Intent(this, indian_state_cases_details.class);
-            intent.putExtra("position", position);
-            intent.putExtra("stateName", states.get(position));
-            startActivity(intent);
         } catch (Exception e) {
             Log.d("exc", Objects.requireNonNull(e.getMessage()));
             Toast.makeText(this, R.string.network_error_message, Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    private void initialise_graphs(List<Long> confirmed_data,
+                                   List<Long> recovered_data,
+                                   List<Long> deaths_data,
+                                   List<Long> active_data) {
+        display_daily_cases(confirmed_data, list_of_all_indian_states.dates);
+        display_recovered_cases(recovered_data, list_of_all_indian_states.dates);
+        display_death_cases(deaths_data, list_of_all_indian_states.dates);
+        display_active_cases(active_data, list_of_all_indian_states.dates);
+        shimmerFrameLayout.hideShimmer();
+        display_pie_chart();
+    }
+
+    private void display_pie_chart() {
+        colors.add(Color.YELLOW);
+        colors.add(Color.BLUE);
+        colors.add(Color.RED);
+        entries.add(new PieEntry(death, "Deaths"));
+        PieDataSet data_set = new PieDataSet(entries, "");
+        data_set.setValueTextSize(13f);
+        data_set.setColors(colors);
+        data_set.setDrawValues(false);
+        PieData pieData = new PieData(data_set);
+        PieChart.setDrawEntryLabels(false);
+        Description description = new Description();
+        description.setText((String) tv_stateName.getText());
+        description.setTextColor(Color.YELLOW);
+        description.setTextSize(13f);
+        PieChart.setHoleRadius(1f);
+        PieChart.setDragDecelerationFrictionCoef(0.5f);
+        PieChart.setDescription(description);
+        PieChart.setData(pieData);
+        PieChart.animateY(1000);
+        PieChart.invalidate();
+    }
+
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+    private void display_recovered_cases(@NotNull List<Long> recovered, List<String> date) {
+
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < recovered.size(); i++) {
+            sum += recovered.get(i);
+            cumulative.add(sum);
+            Log.d("recovered_cases: ", String.valueOf(sum));
+        }
+        recovered = cumulative;
+        entries.add(new PieEntry(cumulative.get(cumulative.size() - 1), "Recovered cases"));
+        tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
+        tv_delta_recoveredCases.setText(String.valueOf(Math.abs(recovered.get(recovered.size() - 1) - recovered.get(recovered.size() - 2))));
+        iv_arrow_recoveredCases.setImageDrawable((recovered.get(recovered.size() - 1) - recovered.get(recovered.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < recovered.size(); i++) {
+            entries.add(new Entry(i, recovered.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "recovered cases".toUpperCase());
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        lineDataSet.setLineWidth(1f);
+        XAxis axis = recovered_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        lineDataSet.setDrawCircles(false);
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        recovered_cases.setData(data);
+        recovered_cases.invalidate();
+    }
+
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+    private void display_active_cases(@NotNull List<Long> active, List<String> date) {
+
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < active.size(); i++) {
+            sum += active.get(i);
+            cumulative.add(sum);
+        }
+        active = cumulative;
+        entries.add(new PieEntry(active.get(active.size() - 1), "Active cases"));
+        tv_active.setText(tv_active.getText() + String.valueOf(active.get(active.size() - 1)));
+        tv_delta_activeCases.setText(String.valueOf(Math.abs(active.get(active.size() - 1) - active.get(active.size() - 2))));
+        iv_arrow_activeCases.setImageDrawable((active.get(active.size() - 1) - active.get(active.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+        for (int i = 0; i < active.size(); i++) {
+            Log.d("display_active_cases: ", String.valueOf(active.get(i)));
+        }
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < active.size(); i++) {
+            entries.add(new Entry(i, active.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "ACTIVE CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        XAxis axis = active_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        lineDataSet.setLineWidth(1f);
+        lineDataSet.setDrawCircles(false);
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        active_cases.setData(data);
+        active_cases.invalidate();
+    }
+
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
+    private void display_death_cases(@NotNull List<Long> deaths, List<String> date) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < deaths.size(); i++) {
+            sum += deaths.get(i);
+            cumulative.add(sum);
+        }
+        deaths = cumulative;
+        death = sum;
+        tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
+        tv_delta_deathCases.setText(String.valueOf(Math.abs(deaths.get(deaths.size() - 1) - deaths.get(deaths.size() - 2))));
+        iv_arrow_deathCases.setImageDrawable((deaths.get(deaths.size() - 1) - deaths.get(deaths.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+        for (int i = 0; i < deaths.size(); i++) {
+            entries.add(new Entry(i, deaths.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "DEATHS CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        lineDataSet.setLineWidth(1f);
+        XAxis axis = death_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        dataSets.add(lineDataSet);
+        lineDataSet.setDrawCircles(false);
+        LineData data = new LineData(dataSets);
+        death_cases.setData(data);
+        death_cases.invalidate();
+    }
+
+    @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
+    private void display_daily_cases(@NotNull List<Long> total_cases, List<String> date) {
+        ArrayList<Entry> entries = new ArrayList<>();
+        List<Long> cumulative = new ArrayList<>();
+        long sum = 0;
+        for (int i = 0; i < total_cases.size() - 1; i++) {
+            sum += total_cases.get(i);
+            cumulative.add(sum);
+        }
+        tv_totalCases.setText((cumulative.get(cumulative.size() - 1) > 0) ? String.valueOf(cumulative.get(cumulative.size() - 1)) : "NULL");
+        tv_delta_totalCases.setText(String.valueOf(Math.abs(cumulative.get(cumulative.size() - 1) - cumulative.get(cumulative.size() - 2))));
+        iv_arrow_totalCases.setImageDrawable((total_cases.get(total_cases.size() - 1) - total_cases.get(total_cases.size() - 2) == 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+        for (int i = 0; i < total_cases.size() - 1; i++) {
+            entries.add(new Entry(i, total_cases.get(i)));
+        }
+        LineDataSet lineDataSet = new LineDataSet(entries, "DAILY CASES");
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        XAxis axis = daily_confirmed_cases.getXAxis();
+        axis.setTextColor(Color.WHITE);
+        axis.setLabelCount(10, true);
+        axis.setValueFormatter(new X_axis_formatter__line_chart(date));
+        lineDataSet.setDrawCircles(false);
+        lineDataSet.setDrawCircleHole(false);
+        lineDataSet.setLineWidth(1f);
+        dataSets.add(lineDataSet);
+        LineData data = new LineData(dataSets);
+        daily_confirmed_cases.setData(data);
+        daily_confirmed_cases.invalidate();
+    }
+
 }
 

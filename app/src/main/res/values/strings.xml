@@ -6,11 +6,11 @@
     <string name="network_error_message">ERROR!! PLEASE TRY AGAIN OR CHECK INTERNET</string>
     <string name="last_updated">Last updated : </string>
     <string name="country">COUNTRY</string>
-    <string name="total_cases">TOTAL CASES \n\n</string>
-    <string name="active">ACTIVE \n\n</string>
-    <string name="recovered">RECOVERED \n\n</string>
-    <string name="deaths">DEATHS \n\n</string>
-    <string name="graphs">\nGRAPHS \n</string>
+    <string name="total_cases">TOTAL\n\n</string>
+    <string name="active">ACTIVE\n\n</string>
+    <string name="recovered">RECOVERED\n\n</string>
+    <string name="deaths">DEATHS\n\n</string>
+    <string name="graphs">\nGRAPHS\n</string>
     <string name="pinch_zoom">SWIPE ----> Pinch to zoom in or zoom out data</string>
     <string name="loading_screen">LOADING....</string>
     <string name="indian_states_data">INDIAN STATES DATA</string>

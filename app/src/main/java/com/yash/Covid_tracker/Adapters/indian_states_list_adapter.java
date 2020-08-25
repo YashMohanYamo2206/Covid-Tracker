@@ -53,7 +53,7 @@ public class indian_states_list_adapter extends RecyclerView.Adapter<indian_stat
     @NonNull
     @Override
     public indian_states_list_adapter.indian_states_list_ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.countries_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.states_item, parent, false);
         return new indian_states_list_adapter.indian_states_list_ViewHolder(view);
     }
 

@@ -10,6 +10,7 @@ import retrofit2.http.GET;
 public interface india_total_data {
     @GET("india")
     Call<india_data> getIndiaData();
+
     @GET("states_daily.json")
     Call<dummy_states_daily> getIndianStatesData();
 }

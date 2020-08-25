@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.yash.Covid_tracker.Adapters.*;
 import com.yash.Covid_tracker.R;
-import com.yash.Covid_tracker.gson_converters.SortbyName;
+import com.yash.Covid_tracker.gson_converters.SortByName;
 import com.yash.Covid_tracker.gson_converters.country;
 import com.yash.Covid_tracker.gson_converters.list_of_countries;
 import com.yash.Covid_tracker.interfaces.countries_interface;
@@ -95,7 +95,7 @@ public class list_of_all_countries extends AppCompatActivity implements countrie
                 recyclerView.setVisibility(View.VISIBLE);
                 searchView.setVisibility(View.VISIBLE);
                 list_of_countries.setCountries(response.body());
-                Collections.sort(list_of_countries.getCountries(), new SortbyName());
+                Collections.sort(list_of_countries.getCountries(), new SortByName());
                 countries=list_of_countries.getCountries();
                 adapter = new countries_list_adapter(countries);
                 adapter.setOnItemClickListener(list_of_all_countries.this);
@@ -116,7 +116,8 @@ public class list_of_all_countries extends AppCompatActivity implements countrie
         //Toast.makeText(this, String.valueOf(position), Toast.LENGTH_SHORT).show();
         Log.d("onItemClick: ", String.valueOf(position));
         Intent intent = new Intent(this, countries_cases_details_activity.class);
-        intent.putExtra("countryName",countries.get(position).getSlug());
+        intent.putExtra("slug",countries.get(position).getSlug());
+        intent.putExtra("countryName",countries.get(position).getCountry());
         intent.putExtra("imgUrl",countries.get(position).getISO2());
         startActivity(intent);
     }

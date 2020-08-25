@@ -2,20 +2,29 @@ package com.yash.Covid_tracker.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.squareup.picasso.Picasso;
+import com.yash.Covid_tracker.Adapters.pinned_countries_list_adapter;
+import com.yash.Covid_tracker.Adapters.pinned_indian_states_list_adapter;
+import com.yash.Covid_tracker.DataBase.pinned_countries_DataBase;
+import com.yash.Covid_tracker.DataBase.pinned_countries_contract;
+import com.yash.Covid_tracker.DataBase.pinned_indian_states_DataBase;
+import com.yash.Covid_tracker.DataBase.pinned_indian_states_contract;
 import com.yash.Covid_tracker.R;
 import com.yash.Covid_tracker.gson_converters.global;
 import com.yash.Covid_tracker.gson_converters.india_data;
@@ -32,17 +41,44 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements pinned_countries_list_adapter.OnItemClickListener, pinned_indian_states_list_adapter.OnItemClickListener {
     com.github.mikephil.charting.charts.PieChart PieChart;
     List<Integer> colors = new ArrayList<>();
-
+    RecyclerView recyclerView,recyclerView2;
+    pinned_countries_list_adapter adapter;
+    SQLiteDatabase mDatabase,mDatabaseStates;
+    pinned_indian_states_list_adapter states_list_adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        init_recyclerView();
         initialise_total_world_retrofit_services();
         initialise_total_india_retrofit_services();
     }
+
+    private void init_recyclerView() {
+        recyclerView2 = findViewById(R.id.pinned_states_recyclerView);
+        recyclerView = findViewById(R.id.pinned_recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView2.setLayoutManager(new LinearLayoutManager(this));
+
+        pinned_countries_DataBase dataBase1 = new pinned_countries_DataBase(this);
+        mDatabase = dataBase1.getReadableDatabase();
+
+        pinned_indian_states_DataBase database2 = new pinned_indian_states_DataBase(this);
+        mDatabaseStates = database2.getReadableDatabase();
+
+        adapter = new pinned_countries_list_adapter(getAllItems());
+        states_list_adapter = new pinned_indian_states_list_adapter(getAllIndianStatesItems());
+
+        adapter.setOnItemClickListener(this);
+        states_list_adapter.setOnItemClickListener(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView2.setAdapter(states_list_adapter);
+    }
+
+
 
     private void initialise_total_world_retrofit_services() {
         countries_interface india_total_data = covid_api_services.get_countries().create(countries_interface.class);
@@ -129,8 +165,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public Cursor getAllItems() {
+        return mDatabase.query(
+                pinned_countries_contract.pinned_countries_entry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                pinned_countries_contract.pinned_countries_entry.COLUMN_TIMESTAMP + " DESC"
+        );
+    }
+
     @Override
     protected void onPostResume() {
+        init_recyclerView();
         initialise_total_india_retrofit_services();
         initialise_total_world_retrofit_services();
         super.onPostResume();
@@ -141,6 +190,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void indian_states(View view) {
-       startActivity(new Intent(this,list_of_all_indian_states.class));
+        startActivity(new Intent(this, list_of_all_indian_states.class));
+    }
+
+    private Cursor getAllIndianStatesItems() {
+        return mDatabaseStates.query(
+                pinned_indian_states_contract.pinned_indian_states_entry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_TIMESTAMP + " DESC"
+        );
+    }
+    @Override
+    public void onItemCLick(int position) {
+        Cursor cursor = getAllItems();
+        cursor.moveToPosition(position);
+        Log.d("onItemClick: ", String.valueOf(position));
+        Intent intent = new Intent(this, countries_cases_details_activity.class);
+        intent.putExtra("slug", cursor.getString(cursor.getColumnIndex(pinned_countries_contract.pinned_countries_entry.COLUMN_SLUG)));
+        intent.putExtra("countryName", cursor.getString(cursor.getColumnIndex(pinned_countries_contract.pinned_countries_entry.COLUMN_COUNTRY_NAME)));
+        intent.putExtra("imgUrl", cursor.getString(cursor.getColumnIndex(pinned_countries_contract.pinned_countries_entry.COLUMN_IMAGE_URL)));
+        startActivity(intent);
+    }
+
+    @Override
+    public void onStatesItemCLick(int position) {
+        Cursor cursor = getAllIndianStatesItems();
+        cursor.moveToPosition(position);
+        Log.d("onItemClick: ", String.valueOf(position));
+        Intent intent = new Intent(this, pinned_indian_states_details_activity.class);
+        intent.putExtra("stateName", cursor.getString(cursor.getColumnIndex(pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_STATE_NAME)));
+        intent.putExtra("position", cursor.getInt(cursor.getColumnIndex(pinned_indian_states_contract.pinned_indian_states_entry.COLUMN_POSITION)));
+        startActivity(intent);
     }
 }

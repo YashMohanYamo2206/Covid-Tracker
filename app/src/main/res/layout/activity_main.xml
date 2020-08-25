@@ -113,9 +113,19 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="700dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/rl_of_cardViews"
             android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pinned_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pinned_states_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -145,11 +155,12 @@
                     android:layout_height="300dp"
                     android:padding="@dimen/text_20" />
             </FrameLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:fontFamily="@font/odin_rounded"
+                android:gravity="center"
                 android:text=" ALL THE DATA HAS BEEN TAKEN FROM \nhttps://covid19api.com/ \nhttps://github.com/covid19india/api \ncoronavirus-19-api.herokuapp.com \nhttps://www.countryflags.io/"
                 tools:ignore="HardcodedText" />
         </LinearLayout>

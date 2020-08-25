@@ -8,12 +8,12 @@
     tools:context=".Activities.Splash_screen">
 
     <TextView
-        android:textColor="#000"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/odin_rounded"
         android:gravity="center"
         android:text="@string/app_name"
+        android:textColor="#000"
         android:textSize="@dimen/text_32"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/covidIcon"
@@ -40,10 +40,12 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/odin_rounded"
         android:text="Made by YASH MOHAN"
+        android:textColor="#000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.748"
         app:layout_constraintStart_toStartOf="@+id/covidIcon"
         app:layout_constraintTop_toBottomOf="@+id/covidIcon"
-        app:layout_constraintVertical_bias="0.687" />
+        app:layout_constraintVertical_bias="0.687"
+        tools:ignore="HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>

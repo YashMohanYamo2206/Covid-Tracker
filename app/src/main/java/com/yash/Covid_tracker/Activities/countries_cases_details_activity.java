@@ -3,13 +3,20 @@ package com.yash.Covid_tracker.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +30,8 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.squareup.picasso.Picasso;
+import com.yash.Covid_tracker.DataBase.pinned_countries_DataBase;
+import com.yash.Covid_tracker.DataBase.pinned_countries_contract;
 import com.yash.Covid_tracker.R;
 import com.yash.Covid_tracker.axis_formatter.X_axis_formatter__line_chart;
 import com.yash.Covid_tracker.gson_converters.countries_details;
@@ -39,15 +48,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static java.security.AccessController.getContext;
+
+@SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
 public class countries_cases_details_activity extends AppCompatActivity {
+    private SQLiteDatabase mDatabase;
+    String countryName, slug;
+    String img_url;
     List<Integer> deaths = new ArrayList<>();
     List<Integer> recovered = new ArrayList<>();
     List<Integer> active = new ArrayList<>();
     List<Integer> total_cases = new ArrayList<>();
     List<String> date = new ArrayList<>();
     LineChart daily_confirmed_cases, active_cases, recovered_cases, death_cases;
-    TextView tv_countryName, tv_totalCases, tv_active, tv_recovered, tv_deaths, tv_lastUpdated;
-    ImageView flag;
+    TextView tv_countryName, tv_totalCases, tv_active, tv_recovered, tv_deaths, tv_lastUpdated, tv_delta_totalCases, tv_delta_activeCases, tv_delta_recoveredCases, tv_delta_deathCases;
+    ImageView flag, iv_arrow_totalCases, iv_arrow_activeCases, iv_arrow_recoveredCases, iv_arrow_deathCases;
     CoordinatorLayout coordinatorLayout;
     BottomSheetBehavior bottomSheetBehavior;
     ShimmerFrameLayout shimmerFrameLayout;
@@ -58,10 +73,14 @@ public class countries_cases_details_activity extends AppCompatActivity {
         setContentView(R.layout.activity_countries_cases_details_activity);
         initialise_views();
         Intent intent = getIntent();
-        initialise_retrofit_services(intent.getStringExtra("countryName"));
+        countryName = intent.getStringExtra("countryName");
+        slug = intent.getStringExtra("slug");
+        initialise_retrofit_services(slug);
+        pinned_countries_DataBase db = new pinned_countries_DataBase(this);
+        mDatabase = db.getWritableDatabase();
         flag = findViewById(R.id.flag);
-        String img_url = "https://www.countryflags.io/"+intent.getStringExtra("imgUrl")+"/shiny/64.png";
-        Picasso.with(this).load(img_url).into(flag);
+        img_url = intent.getStringExtra("imgUrl") ;
+        Picasso.with(this).load("https://www.countryflags.io/" + img_url + "/shiny/64.png").into(flag);
     }
 
     private void initialise_views() {
@@ -69,31 +88,50 @@ public class countries_cases_details_activity extends AppCompatActivity {
         shimmerFrameLayout = findViewById(R.id.shimmer_country);
         tv_countryName = findViewById(R.id.country_name);
         tv_totalCases = findViewById(R.id.total_cases);
-        tv_totalCases.getLayoutParams().width = coordinatorLayout.getWidth() / 2 - 10;
         tv_active = findViewById(R.id.active);
-        tv_active.getLayoutParams().height = (coordinatorLayout.getWidth() / 2 - 10);
         tv_deaths = findViewById(R.id.deaths);
-        tv_deaths.getLayoutParams().height = (coordinatorLayout.getWidth() / 2 - 10);
         tv_recovered = findViewById(R.id.recovered);
-        tv_recovered.getLayoutParams().height = (coordinatorLayout.getWidth() / 2 - 10);
         tv_lastUpdated = findViewById(R.id.last_updated);
+        tv_delta_totalCases = findViewById(R.id.delta_total_cases);
+        tv_delta_activeCases = findViewById(R.id.delta_active_cases);
+        tv_delta_recoveredCases = findViewById(R.id.delta_recovered_cases);
+        tv_delta_deathCases = findViewById(R.id.delta_death_cases);
+        iv_arrow_totalCases = findViewById(R.id.arrow_total_cases);
+        iv_arrow_activeCases = findViewById(R.id.arrow_active_cases);
+        iv_arrow_recoveredCases = findViewById(R.id.arrow_recovered_cases);
+        iv_arrow_deathCases = findViewById(R.id.arrow_death_cases);
 
         View bottom_sheet = findViewById(R.id.layout_bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet);
-        // bottom_sheet.getLayoutParams().height = (int)tv_countryName.getY() + 20;
-
+        //bottom_sheet.getLayoutParams().height = (int)tv_countryName.getY() + 20;
 
         daily_confirmed_cases = findViewById(R.id.daily_new_cases_line_chart);
         active_cases = findViewById(R.id.active_cases_line_chart);
         recovered_cases = findViewById(R.id.recovered_cases_line_chart);
         death_cases = findViewById(R.id.death_cases_line_chart);
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    findViewById(R.id.layout_bottom_sheet).setBackground(getDrawable(R.drawable.bg_bottom_sheet_completely_open));
+                    findViewById(R.id.img_drag).setBackground(getDrawable(R.drawable.bg_bottom_sheet_drag_completely_open));
+                } else {
+                    findViewById(R.id.layout_bottom_sheet).setBackground(getDrawable(R.drawable.bg_bottom_sheet));
+                    findViewById(R.id.img_drag).setBackground(getDrawable(R.drawable.bg_bottom_sheet_drag));
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+            }
+        });
     }
 
 
     private void initialise_retrofit_services(String s) {
         countries_interface api_services = covid_api_services.get_countries().create(countries_interface.class);
         api_services.getCountryDetail(s).enqueue(new Callback<List<countries_details>>() {
-            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(@NonNull Call<List<countries_details>> call, @NonNull Response<List<countries_details>> response) {
                 if (!response.isSuccessful()) {
@@ -109,6 +147,13 @@ public class countries_cases_details_activity extends AppCompatActivity {
                     tv_recovered.setText(tv_recovered.getText() + "NULL");
                     return;
                 }
+                Button button = findViewById(R.id.pin_unpin);
+                button.setVisibility(View.VISIBLE);
+                if (CheckIsDataAlreadyInDBorNot(countryName)) {
+                    button.setText("UNPIN");
+                } else {
+                    button.setText("PIN");
+                }
                 shimmerFrameLayout.postDelayed(() -> shimmerFrameLayout.hideShimmer(), 500);
                 tv_countryName.setText(response.body().get(0).getCountry().toUpperCase());
                 for (countries_details countries_details : response.body()) {
@@ -118,10 +163,29 @@ public class countries_cases_details_activity extends AppCompatActivity {
                     active.add(Math.max(countries_details.getConfirmed() - countries_details.getDeaths() - countries_details.getRecovered(), 0));
                     date.add(countries_details.getDate().substring(0, 10));
                 }
-                tv_totalCases.setText(tv_totalCases.getText() + String.valueOf(total_cases.get(total_cases.size() - 1)));
-                tv_active.setText(tv_active.getText() + String.valueOf(active.get(active.size() - 1)));
-                tv_deaths.setText(tv_deaths.getText() + String.valueOf(deaths.get(deaths.size() - 1)));
-                tv_recovered.setText(tv_recovered.getText() + String.valueOf(recovered.get(recovered.size() - 1)));
+
+                tv_totalCases.setText(String.valueOf(total_cases.get(total_cases.size() - 1)));
+
+
+                tv_delta_totalCases.setText(String.valueOf(Math.abs(total_cases.get(total_cases.size() - 1) - total_cases.get(total_cases.size() - 2))));
+                iv_arrow_totalCases.setImageDrawable((total_cases.get(total_cases.size() - 1) - total_cases.get(total_cases.size() - 2) == 0) ? null : (total_cases.get(total_cases.size() - 1) - total_cases.get(total_cases.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+
+                tv_delta_activeCases.setText(String.valueOf(Math.abs(active.get(active.size() - 1) - active.get(active.size() - 2))));
+                iv_arrow_activeCases.setImageDrawable((active.get(active.size() - 1) - active.get(active.size() - 2) == 0) ? null : (active.get(active.size() - 1) - active.get(active.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+
+                tv_delta_recoveredCases.setText(String.valueOf(Math.abs(recovered.get(recovered.size() - 1) - recovered.get(recovered.size() - 2))));
+                iv_arrow_recoveredCases.setImageDrawable((recovered.get(recovered.size() - 1) - recovered.get(recovered.size() - 2) == 0) ? null : (recovered.get(recovered.size() - 1) - recovered.get(recovered.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+
+                tv_delta_deathCases.setText(String.valueOf(Math.abs(deaths.get(deaths.size() - 1) - deaths.get(deaths.size() - 2))));
+                iv_arrow_deathCases.setImageDrawable((deaths.get(deaths.size() - 1) - deaths.get(deaths.size() - 2) == 0) ? null : (deaths.get(deaths.size() - 1) - deaths.get(deaths.size() - 2) < 0) ? getResources().getDrawable(R.drawable.ic_baseline_arrow_downward_24, null) : getResources().getDrawable(R.drawable.ic_increase, null));
+
+
+                tv_active.setText(String.valueOf(active.get(active.size() - 1)));
+                tv_deaths.setText(String.valueOf(deaths.get(deaths.size() - 1)));
+                tv_recovered.setText(String.valueOf(recovered.get(recovered.size() - 1)));
                 tv_lastUpdated.setText(tv_lastUpdated.getText() + " " + date.get(date.size() - 1));
                 display_daily_cases(total_cases, date);
                 display_recovered_cases(recovered, date);
@@ -129,7 +193,6 @@ public class countries_cases_details_activity extends AppCompatActivity {
                 display_death_cases(deaths, date);
             }
 
-            @SuppressLint("SetTextI18n")
             @Override
             public void onFailure(@NonNull Call<List<countries_details>> call, @NonNull Throwable t) {
                 Log.d("onFailure: ", Objects.requireNonNull(t.getMessage()));
@@ -193,7 +256,6 @@ public class countries_cases_details_activity extends AppCompatActivity {
         }
         LineDataSet lineDataSet = new LineDataSet(entries, "DEATHS CASES");
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        //lineDataSet.setColor(R.color.color_death);
         lineDataSet.setLineWidth(1f);
         XAxis axis = death_cases.getXAxis();
         axis.setTextColor(Color.WHITE);
@@ -234,5 +296,37 @@ public class countries_cases_details_activity extends AppCompatActivity {
 
     public void back_button(View view) {
         finish();
+    }
+
+    public void pin_unpin(View view) {
+        if (!CheckIsDataAlreadyInDBorNot(countryName)) {
+            ContentValues cv = new ContentValues();
+            cv.put(pinned_countries_contract.pinned_countries_entry.COLUMN_COUNTRY_NAME, countryName);
+            cv.put(pinned_countries_contract.pinned_countries_entry.COLUMN_IMAGE_URL, img_url);
+            cv.put(pinned_countries_contract.pinned_countries_entry.COLUMN_SLUG, slug);
+            Toast.makeText(this, countryName + " pinned", Toast.LENGTH_SHORT).show();
+            mDatabase.insert(pinned_countries_contract.pinned_countries_entry.TABLE_NAME, null, cv);
+            Button button = findViewById(R.id.pin_unpin);
+            button.setText("UNPIN");
+        } else {
+            Button button = findViewById(R.id.pin_unpin);
+            button.setText("PIN");
+            Toast.makeText(this, countryName + " unpinned", Toast.LENGTH_SHORT).show();
+            mDatabase.delete(pinned_countries_contract.pinned_countries_entry.TABLE_NAME, pinned_countries_contract.pinned_countries_entry.COLUMN_COUNTRY_NAME + "=?", new String[]{countryName});
+        }
+    }
+
+    public boolean CheckIsDataAlreadyInDBorNot(String countryName) {
+        String Query = "SELECT EXISTS (SELECT * FROM " + pinned_countries_contract.pinned_countries_entry.TABLE_NAME + " WHERE " + pinned_countries_contract.pinned_countries_entry.COLUMN_COUNTRY_NAME + "='" + countryName + "' LIMIT 1)";
+        Cursor cursor = mDatabase.rawQuery(Query, null);
+        cursor.moveToFirst();
+
+        if (cursor.getInt(0) == 1) {
+            cursor.close();
+            return true;
+        }
+        cursor.close();
+        return false;
+
     }
 }
